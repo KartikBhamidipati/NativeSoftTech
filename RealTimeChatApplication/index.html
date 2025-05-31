@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const socket = io('http://localhost:3000');
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const messages = document.getElementById('messages');
+
+      socket.on('chat history', history => {
+        history.forEach(msg => {
+          const item = document.createElement('li');
+          item.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.text}`;
+          messages.appendChild(item);
+        });
+      });
+
+      socket.on('chat message', msg => {
+        const item = document.createElement('li');
+        item.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.text}`;
+        messages.appendChild(item);
+      });
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('chat message', input.value);
+          input.value = '';
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Chat Room</h1>
+  <ul id="messages"></ul>
+  <form id="form">
+    <input id="input" autocomplete="off" /><button>Send</button>
+  </form>
+</body>
+</html>
